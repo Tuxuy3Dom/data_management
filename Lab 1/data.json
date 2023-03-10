@@ -1,0 +1,19 @@
+{
+    "imie": ["Ihor"],
+    "nazwisko": ["Yaremchuk"],
+    "nalbumu": ["w61863"],
+    "stanowisko": ["Student", "Web developer"],
+    "wiek": [21],
+    "adres": {
+      "ulica": "ul. Baligrodzka",
+      "numer": "7/7",
+      "miasto": "Rzeszów",
+      "kod_pocztowy": "35-505",
+      "kraj": "Polska"
+    },
+    "zainteresowania": [
+      "podróże",
+      "sport",
+      "tańce"
+    ]
+}
