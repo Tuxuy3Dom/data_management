@@ -4,68 +4,110 @@ from difflib import get_close_matches
 from difflib import SequenceMatcher
 
 # open json file
-with open('data.json', encoding = 'utf-8') as dataStudent:
+with open('dataUniversity.json', encoding='utf-8') as dataStudent:
     data = json.load(dataStudent)
 
-# fetching the string specified by the user and convert uppercase letters to lowercase
-key_word = input("Podaj wyraz: ").lower()
+# Input keys in file ison
+input_key = input("Podaj wyraz: ")
+
+# Optimization code in function check_input_key
+
+
+def array_form_items(result):
+    if isinstance(result, list):
+        for r in result:
+            print(r)
+    else:
+        print(result)
+
+# Find close matches using the get_close_matches function from difflib
+
+
+def find_best_key(input_key):
+    close_matches = get_close_matches(input_key, data.keys(), n=3, cutoff=0.6)
+    if len(close_matches) > 0:
+        suggestion = close_matches[0]
+        confirm = input(f"Czy miałeś na myśli '{suggestion}'? [Tak/Nie] ")
+        if confirm.lower() == "tak":
+            array_form_items(data[suggestion])
+        else:
+            if input_key.upper() in data:
+                array_form_items(data[input_key.upper()])
+            else:
+                print(
+                    f'Wyraz = "{input_key}" nie istnieje w pliku. Sprawdź ponownie.')
+    else:
+        if input_key.upper() in data:
+            array_form_items(data[input_key.upper()])
+        else:
+            proper_nouns = [k for k in data.keys() if k[0].isupper()]
+            matches = difflib.get_close_matches(
+                input_key, proper_nouns, n=1, cutoff=0.6)
+            if len(matches) > 0:
+                confirm = input(
+                    f"Czy miałeś na myśli '{matches[0]}'? [Tak/Nie] ")
+                if confirm.lower() == "tak":
+                    return array_form_items(data[matches[0]])
+                else:
+                    print(
+                        f'Wyraz = "{input_key}" nie istnieje w pliku. Sprawdź ponownie.')
+            else:
+                print("Brak dopasowania dla podanego wyrazu. Sprawdź ponownie.")
 
 # function check keys in json file
-def check_key_words(key_word):
-    if key_word in data.keys():
-        print(f'Podany wyraz to: "{key_word}"', f'\nWynik: {data[key_word]}')
-    else:
-        print(f'Podany wyraz = "{key_word}" nie istnieje w pliku. Sprawdź ponownie.')
 
 
-keys = list(data.keys())
-
-def find_best_key(input_key, data_keys):
-    
-    best_match = None
-    best_ratio = 0.5
-
-    for key in data_keys:
-        ratio = difflib.SequenceMatcher(None, input_key, key).ratio()
-        if ratio > best_ratio:
-            best_ratio = ratio
-            best_match = key
-
-    if best_match is None:
-        return None
-    else: 
-        print(f'Czy chciałeś podać {best_match}?')
-        find_accepted = input("Podaj T lub N: ").upper()
-        if find_accepted == 'T':
-            return print(f'Wynik podanego wyrazu: {data[best_match]}')
+def check_input_key(input_key):
+    result = data.get(input_key, None)
+    # Check if the input is an acronym (all caps)
+    if input_key.isupper():
+        # result = data.get(input_key, None)
+        if result is not None:
+            return array_form_items(result)
         else:
-            return print(f'Wyraz = "{input_key}" nie istnieje w pliku. Sprawdź ponownie.')
-    
-def check_key_word(key_word):
-    result = data.get(key_word.lower(), None)
-    if result is not None:
-        if isinstance(result, list):
-            for r in result:
-                print(r)
-        else:
-            print(result)
+            return find_best_key(input_key)
     else:
-        close_matches = get_close_matches(key_word, data.keys(), n=3, cutoff=0.6)
-        if len(close_matches) > 0:
-            suggestion = close_matches[0]
-            confirm = input(f"Czy miałeś na myśli '{suggestion}'? [Tak/Nie] ")
-            if confirm.lower() == "tak":
-                if isinstance(data[suggestion], list):
-                    for r in data[suggestion]:
-                        print(r)
-                else:
-                    print(data[suggestion])
+        # Check if the input starts with a capital letter (possible proper noun)
+        if input_key[0].isupper():
+            # result = data.get(input_key, None)
+            if result is not None:
+                return array_form_items(result)
             else:
-                print(f'Wyraz = "{key_word}" nie istnieje w pliku. Sprawdź ponownie.')
-        else:
-            print("Brak dopasowania dla podanego wyrazu.")
+                # Check if the input is an acronym in the form "ABC"
+                if len(input_key) <= 3 and input_key.isalpha():
+                    result = data.get(input_key.upper(), None)
+                    if result is not None:
+                        return array_form_items(result)
+                    else:
+                        return find_best_key(input_key)
+                else:
+                    # Convert the input to lowercase
+                    input_key = input_key.lower()
 
-# view file content
-print(check_key_words(key_word))
-print(find_best_key(key_word, keys))
-print(check_key_word(key_word))
+                    # Try to find a match for the lowercase version of the input
+                    result = data.get(input_key, None)
+                    if result is not None:
+                        return array_form_items(result)
+                    else:
+                        # If no match was found for the lowercase version, try the original input
+                        result = data.get(input_key.title(), None)
+                        if result is not None:
+                            return array_form_items(result)
+                        else:
+                            # Find close matches using the get_close_matches function from difflib
+                            return find_best_key(input_key)
+        else:
+            if input_key.lower():
+                # result = data.get(input_key, None)
+                if result is not None:
+                    return array_form_items(result)
+                else:
+                    return find_best_key(input_key)
+            else:
+                return print("Brak dopasowania wyrazu. Sprawdź ponownie.")
+
+
+# view file database
+result = check_input_key(input_key)
+if isinstance(result, str):
+    print(result)
