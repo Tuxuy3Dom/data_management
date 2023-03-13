@@ -7,12 +7,7 @@ from difflib import SequenceMatcher
 with open('dataUniversity.json', encoding='utf-8') as dataStudent:
     data = json.load(dataStudent)
 
-# Input keys in file ison
-input_key = input("Podaj wyraz: ")
-
 # Optimization code in function check_input_key
-
-
 def array_form_items(result):
     if isinstance(result, list):
         for r in result:
@@ -21,42 +16,39 @@ def array_form_items(result):
         print(result)
 
 # Find close matches using the get_close_matches function from difflib
-
-
 def find_best_key(input_key):
-    close_matches = get_close_matches(input_key, data.keys(), n=3, cutoff=0.6)
+    close_matches = get_close_matches(input_key, data.keys(), n=3, cutoff=0.6)[0]
     if len(close_matches) > 0:
-        suggestion = close_matches[0]
-        confirm = input(f"Czy miałeś na myśli '{suggestion}'? [Tak/Nie] ")
+        confirm = input(f"Czy miałeś na myśli '{close_matches}'? [Tak/Nie] ")
         if confirm.lower() == "tak":
-            array_form_items(data[suggestion])
+            return array_form_items(data[close_matches])
+        elif confirm.lower() == "nie":
+            return print(f'Napewno nie ma danego słowa "{close_matches}"?')
         else:
             if input_key.upper() in data:
-                array_form_items(data[input_key.upper()])
+                return array_form_items(data[input_key.upper()])
             else:
-                print(
-                    f'Wyraz = "{input_key}" nie istnieje w pliku. Sprawdź ponownie.')
+                return print(f'Wyraz = "{input_key}" nie istnieje w pliku. Sprawdź ponownie.')
     else:
         if input_key.upper() in data:
-            array_form_items(data[input_key.upper()])
+            return array_form_items(data[input_key.upper()])
         else:
             proper_nouns = [k for k in data.keys() if k[0].isupper()]
-            matches = difflib.get_close_matches(
-                input_key, proper_nouns, n=1, cutoff=0.6)
+            matches = get_close_matches(input_key, proper_nouns, n=3, cutoff=0.6)[0]
             if len(matches) > 0:
                 confirm = input(
-                    f"Czy miałeś na myśli '{matches[0]}'? [Tak/Nie] ")
+                    f"Czy miałeś na myśli '{matches}'? [Tak/Nie] ")
                 if confirm.lower() == "tak":
-                    return array_form_items(data[matches[0]])
+                    return array_form_items(data[matches])
+                elif confirm.lower() == "nie":
+                    return print(f'Napewno nie ma danego słowa "{matches}"?')
                 else:
-                    print(
+                    return print(
                         f'Wyraz = "{input_key}" nie istnieje w pliku. Sprawdź ponownie.')
             else:
-                print("Brak dopasowania dla podanego wyrazu. Sprawdź ponownie.")
+                return print("Brak dopasowania dla podanego wyrazu. Sprawdź ponownie.")
 
 # function check keys in json file
-
-
 def check_input_key(input_key):
     result = data.get(input_key, None)
     # Check if the input is an acronym (all caps)
@@ -106,6 +98,8 @@ def check_input_key(input_key):
             else:
                 return print("Brak dopasowania wyrazu. Sprawdź ponownie.")
 
+# Input keys in file ison
+input_key = input("Podaj wyraz: ")
 
 # view file database
 result = check_input_key(input_key)
