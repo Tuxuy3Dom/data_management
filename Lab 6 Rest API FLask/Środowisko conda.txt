@@ -1,0 +1,16 @@
+Środowisko wirtualne venv
+Polecenie: 
+python -m venv .venv - wirtualne środowisko projektu
+
+Postman - program
+
+Anaconda Prompt 
+Polecenia: 
+conda env list - lista  
+conda create --name flask_env python=3.9 - tworzenie środowiska
+conda activate flask_env - aktywacja środowiska
+
+Instaling:
+https://flask.palletsprojects.com/en/1.1.x/quickstart/
+https://pypi.org/project/Flask-RESTful/
+https://pypi.org/project/Flask-JWT/
